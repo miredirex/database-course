@@ -58,20 +58,6 @@ create table if not exists role
 
 alter table role owner to postgres;
 
-create table if not exists actor_role
-(
-	actor_id integer
-		constraint actor_role_actor_id_fk
-			references actor
-				on delete cascade,
-	role_id integer
-		constraint actor_role_role_id_fk
-			references role
-				on delete cascade
-);
-
-alter table actor_role owner to postgres;
-
 create table if not exists genre
 (
 	id serial not null
@@ -105,8 +91,10 @@ create table if not exists movie_actor
 	actor_id integer
 		constraint movie_actor_actor_id_fk
 			references actor
-				on delete cascade
+				on delete cascade,
+    role_id integer
+        constraint movie_actor_role_id_fk
+            references role
 );
 
 alter table movie_actor owner to postgres;
-

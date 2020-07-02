@@ -7,6 +7,8 @@
     INSERT INTO movie VALUES (DEFAULT, 'Shrek 2', 'Shrek''s adventures', 75, '2001-04-03', '7200', 1);
     INSERT INTO movie VALUES (DEFAULT, 'Another Movie 1', 'A sample movie', 40, '2001-04-03', '3950', 1);
     INSERT INTO movie VALUES (DEFAULT, 'Another Movie 1', 'A sample movie but another', 84, '2002-04-03', '3830', 1);
+    INSERT INTO movie VALUES (DEFAULT, 'Movie One', 'A sample movie but another', 80, '1998-04-03', '3230', 1);
+    INSERT INTO movie VALUES (DEFAULT, 'Movie Two', 'A sample movie but another', 81, '2002-04-03', '3830', 1);
 
     INSERT INTO actor VALUES (DEFAULT, 'Sergey', 'Liferov', '1999-12-01', 201, 'Belarus');
     INSERT INTO actor VALUES (DEFAULT, 'Alexandr', 'Belov', '1989-01-05', 185, 'Ukraine');
@@ -21,12 +23,14 @@
     INSERT INTO genre VALUES (DEFAULT, 'Fantasy');
     INSERT INTO genre VALUES (DEFAULT, 'Romance');
 
+    INSERT INTO movie_actor VALUES (1, 1, 1);
+    INSERT INTO movie_actor VALUES (2, 1, 2);
+
     -- Таблицы пересечения
     INSERT INTO movie_actor VALUES (1, 1);
     INSERT INTO movie_genre VALUES (1, 1);
     INSERT INTO movie_genre VALUES (2, 2);
     INSERT INTO movie_genre VALUES (3, 3);
-    INSERT INTO actor_role VALUES(1, 1);
 --  2. С указанием списка полей
     INSERT INTO role (name, significance, hostility, description)
     VALUES ('Donkey', 'secondary', 'neutral', 'Donkey is a fictional fast-talking donkey created by William Steig and adapted by DreamWorks Animation for the Shrek franchise');
@@ -35,7 +39,7 @@
 
 -- 2. DELETE
 --  1. Всех записей
-    DELETE FROM actor_role;
+    DELETE FROM movie_actor;
 --  2. По условию
     DELETE FROM role WHERE significance = 'secondary';
 --  3. Очистить таблицу
@@ -88,10 +92,10 @@
 -- 8. SELECT GROUP BY + HAVING
 --  1. Написать 3 разных запроса с использованием GROUP BY + HAVING
 
-    SELECT id, country_of_residence, MAX(height_cm)
+    SELECT country_of_residence, (DATE_PART('year', NOW()) - DATE_PART('year', MIN(birth_date))) as age
     FROM actor
-    GROUP BY id, country_of_residence
-    HAVING MAX(height_cm) >= 180;
+    GROUP BY country_of_residence
+    HAVING (DATE_PART('year', NOW()) - DATE_PART('year', MIN(birth_date))) > 60;
 
     SELECT birth_date, COUNT(*) AS actors_born_in_year
     FROM actor
@@ -106,15 +110,20 @@
 -- 9. SELECT JOIN
 --  1. LEFT JOIN двух таблиц и WHERE по одному из атрибутов
     SELECT
-        movie.title, movie.rating, director.first_name AS director_name, director.last_name AS director_lastname
+        movie.title, role.name
     FROM
-        movie
+        movie_actor
     LEFT JOIN
-        director
+        movie
     ON
-        director_id = director.id
+        movie_actor.movie_id = movie.id
+    LEFT JOIN
+        role
+    ON
+        movie_actor.role_id = role.id
     WHERE
-        movie.rating > 60;
+        movie_actor.actor_id = 1;
+
 --  2. RIGHT JOIN. Получить такую же выборку, как и в 5.1
     SELECT
         genre.id, genre.name
